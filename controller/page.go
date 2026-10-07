@@ -26,7 +26,7 @@ func GetIndexPage(c *gin.Context) {
 
 	files, err := model.QueryFiles(query, startIdx)
 	if err != nil {
-		c.HTML(http.StatusOK, "error.html", gin.H{
+		common.RenderPage(c, http.StatusOK, "error.html", gin.H{
 			"message":  err.Error(),
 			"option":   common.OptionMap,
 			"username": c.GetString("username"),
@@ -37,7 +37,7 @@ func GetIndexPage(c *gin.Context) {
 		next = 0
 	}
 
-	c.HTML(http.StatusOK, "index.html", gin.H{
+	common.RenderPage(c, http.StatusOK, "index.html", gin.H{
 		"message":  "",
 		"option":   common.OptionMap,
 		"username": c.GetString("username"),
@@ -54,7 +54,7 @@ func GetManagePage(c *gin.Context) {
 	var uptime = time.Since(common.StartTime)
 	session := sessions.Default(c)
 	role := session.Get("role")
-	c.HTML(http.StatusOK, "manage.html", gin.H{
+	common.RenderPage(c, http.StatusOK, "manage.html", gin.H{
 		"message":                 "",
 		"option":                  common.OptionMap,
 		"username":                c.GetString("username"),
@@ -73,7 +73,7 @@ func GetManagePage(c *gin.Context) {
 }
 
 func GetImagePage(c *gin.Context) {
-	c.HTML(http.StatusOK, "image.html", gin.H{
+	common.RenderPage(c, http.StatusOK, "image.html", gin.H{
 		"message":  "",
 		"option":   common.OptionMap,
 		"username": c.GetString("username"),
@@ -81,7 +81,7 @@ func GetImagePage(c *gin.Context) {
 }
 
 func GetLoginPage(c *gin.Context) {
-	c.HTML(http.StatusOK, "login.html", gin.H{
+	common.RenderPage(c, http.StatusOK, "login.html", gin.H{
 		"message":  "",
 		"option":   common.OptionMap,
 		"username": c.GetString("username"),
@@ -89,7 +89,7 @@ func GetLoginPage(c *gin.Context) {
 }
 
 func GetHelpPage(c *gin.Context) {
-	c.HTML(http.StatusOK, "help.html", gin.H{
+	common.RenderPage(c, http.StatusOK, "help.html", gin.H{
 		"message":  "",
 		"option":   common.OptionMap,
 		"username": c.GetString("username"),
@@ -97,7 +97,7 @@ func GetHelpPage(c *gin.Context) {
 }
 
 func Get404Page(c *gin.Context) {
-	c.HTML(http.StatusOK, "404.html", gin.H{
+	common.RenderPage(c, http.StatusOK, "404.html", gin.H{
 		"message":  "",
 		"option":   common.OptionMap,
 		"username": c.GetString("username"),

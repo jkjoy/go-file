@@ -188,7 +188,7 @@ func DownloadFile(c *gin.Context) {
 			c.Status(404)
 			return
 		}
-		c.HTML(http.StatusOK, "text-copy.html", gin.H{
+		common.RenderPage(c, http.StatusOK, "text-copy.html", gin.H{
 			"content": string(content),
 		})
 	} else {

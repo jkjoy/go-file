@@ -1,0 +1,11 @@
+{{define "footer"}}
+<footer class="footer modern-footer">
+    <div class="container">
+        {{if .option.FooterInfo}}
+        <div class="content">{{.option.FooterInfo | unescape}}</div>
+        {{else}}
+        <p><a href="https://github.com/songquanpeng/go-file">Go File {{.option.Version}}</a><span>由 <a href="https://github.com/songquanpeng">JustSong</a> 构建 · <a href="https://opensource.org/licenses/mit-license.php">MIT</a> 协议</span></p>
+        {{end}}
+    </div>
+</footer>
+{{end}}

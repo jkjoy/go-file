@@ -1,5 +1,11 @@
 let hiddenTextArea = undefined;
 
+function switchTheme(theme) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('theme', theme);
+    window.location.assign(url.href);
+}
+
 function showUploadModal() {
     if (location.href.split('/')[3].startsWith("explorer")) {
         let path = getPathParam();
@@ -34,7 +40,7 @@ function closeModal(id) {
 
 function onChooseBtnClicked(e) {
     document.getElementById('fileInput').click();
-    e.preventDefault();
+    if (e) e.preventDefault();
 }
 
 function deleteFile(id, link) {
@@ -228,7 +234,7 @@ function uploadImage() {
                 let filenames = res.data;
                 let imageUploadPanel = document.getElementById('imageUploadPanel');
                 filenames.forEach(filename => {
-                    let url = location.href + '/' + filename;
+                    let url = new URL('/image/' + encodeURIComponent(filename), window.location.origin).href;
                     imageUploadPanel.insertAdjacentHTML('afterbegin', `
                 <div class="field has-addons">
                     <div class="control is-light is-expanded">
@@ -509,6 +515,11 @@ function displayFile(link) {
 }
 
 function init() {
+    const pageUrl = new URL(window.location.href);
+    if (pageUrl.searchParams.has('theme')) {
+        pageUrl.searchParams.delete('theme');
+        window.history.replaceState(window.history.state, '', pageUrl.href);
+    }
     const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
     if ($navbarBurgers.length > 0) {
         $navbarBurgers.forEach(el => {
@@ -517,6 +528,7 @@ function init() {
                 const $target = document.getElementById(target);
                 el.classList.toggle('is-active');
                 $target.classList.toggle('is-active');
+                el.setAttribute('aria-expanded', el.classList.contains('is-active'));
             });
         });
     }

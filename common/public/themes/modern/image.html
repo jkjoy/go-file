@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+{{template "header" .}}
+<body>
+<div class="site-shell">
+    {{template "nav" .}}
+    <main class="container modern-home" ondrop="imageDropHandler(event)" ondragover="imageDragOverHandler(event)">
+        <header class="workspace-heading">
+            <div><h1>图床</h1><p>上传图片，获取可直接分享的链接。</p></div>
+        </header>
+        <article id="messageToast" class="message is-danger" style="display: none" role="alert">
+            <div class="message-body" id="messageToastText"></div>
+        </article>
+        {{template "progress"}}
+        <section class="box empty-state" id="imageDropZone" aria-label="图片上传">
+            <div class="empty-icon" aria-hidden="true"><img src="/public/icon/file.svg" alt="" width="32" height="32"></div>
+            <h2 id="imageDropZonePrompt">拖拽图片到这里</h2>
+            <p>也可以复制粘贴图片，或从设备中选择。支持同时上传多张图片。</p>
+            <input id="imageFileInput" type="file" accept="image/*" multiple hidden onchange="document.getElementById('fileInput').files = this.files; uploadImage()">
+            <button class="button is-primary" type="button" onclick="document.getElementById('imageFileInput').click()">选择图片</button>
+        </section>
+        <section class="box" id="promptBox" style="display: none" aria-live="polite">
+            <h2 class="title is-5" id="imageUploadStatus"></h2>
+            <progress class="progress is-success" value="0" max="100" id="imageUploadProgress" aria-label="图片上传进度"></progress>
+            <div id="imageUploadPanel"></div>
+        </section>
+    </main>
+    {{template "footer" .}}
+</div>
+{{template "modal"}}
+{{template "notice" .}}
+<script>
+    document.addEventListener('paste', function (event) {
+        if (event.clipboardData && event.clipboardData.files.length) {
+            event.preventDefault();
+            document.getElementById('fileInput').files = event.clipboardData.files;
+            uploadImage();
+        }
+    });
+</script>
+</body>
+</html>

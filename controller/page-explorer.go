@@ -23,7 +23,7 @@ func GetExplorerPageOrFile(c *gin.Context) {
 	fullPath := filepath.Join(common.ExplorerRootPath, path)
 	if !strings.HasPrefix(fullPath, common.ExplorerRootPath) {
 		// We may being attacked!
-		c.HTML(http.StatusBadRequest, "error.html", gin.H{
+		common.RenderPage(c, http.StatusBadRequest, "error.html", gin.H{
 			"message":  fmt.Sprintf("只能访问指定文件夹的子目录"),
 			"option":   common.OptionMap,
 			"username": c.GetString("username"),
@@ -32,7 +32,7 @@ func GetExplorerPageOrFile(c *gin.Context) {
 	}
 	root, err := os.Stat(fullPath)
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "error.html", gin.H{
+		common.RenderPage(c, http.StatusBadRequest, "error.html", gin.H{
 			"message":  "处理路径时发生了错误，请确认路径正确",
 			"option":   common.OptionMap,
 			"username": c.GetString("username"),
@@ -42,7 +42,7 @@ func GetExplorerPageOrFile(c *gin.Context) {
 	if root.IsDir() {
 		localFilesPtr, readmeFileLink, err := getData(path, fullPath)
 		if err != nil {
-			c.HTML(http.StatusBadRequest, "error.html", gin.H{
+			common.RenderPage(c, http.StatusBadRequest, "error.html", gin.H{
 				"message":  err.Error(),
 				"option":   common.OptionMap,
 				"username": c.GetString("username"),
@@ -50,7 +50,7 @@ func GetExplorerPageOrFile(c *gin.Context) {
 			return
 		}
 
-		c.HTML(http.StatusOK, "explorer.html", gin.H{
+		common.RenderPage(c, http.StatusOK, "explorer.html", gin.H{
 			"message":        "",
 			"option":         common.OptionMap,
 			"username":       c.GetString("username"),

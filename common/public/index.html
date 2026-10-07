@@ -80,8 +80,8 @@
                 {{end}}
             </div>
             <nav class="pagination is-centered" role="navigation" aria-label="pagination">
-                <a class="pagination-previous shadow" href="/?p={{.prev}}">上一页</a>
-                <a class="pagination-next shadow" href="/?p={{.next}}">下一页</a>
+                <a class="pagination-previous shadow" href="/?p={{.prev}}{{if .isQuery}}&amp;query={{.query}}{{end}}">上一页</a>
+                <a class="pagination-next shadow" href="/?p={{.next}}{{if .isQuery}}&amp;query={{.query}}{{end}}">下一页</a>
             </nav>
         </div>
     </div>

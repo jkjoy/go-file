@@ -7,6 +7,9 @@
     <meta name="theme-color" content="#ffffff"/>
     <link rel="stylesheet" href="/public/lib/bulma.min.css">
     <link rel="stylesheet" href="/public/static/app.css">
+    {{if .theme.Stylesheet}}
+    <link rel="stylesheet" href="{{.theme.Stylesheet}}">
+    {{end}}
     <script src="/public/lib/qrious.min.js"></script>
     <script src="/public/static/main.js"></script>
 </head>

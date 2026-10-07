@@ -93,7 +93,9 @@ func printHelp() {
 	os.Exit(0)
 }
 
-func init() {
+// Init processes runtime flags and paths after the executable has started.
+// Keeping this out of package init also allows tests to use their own flags and paths.
+func Init() {
 	flag.Parse()
 
 	if *PrintHelp {

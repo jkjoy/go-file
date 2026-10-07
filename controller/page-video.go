@@ -20,7 +20,7 @@ func GetVideoPage(c *gin.Context) {
 	rootPath := filepath.Join(common.VideoServePath, path)
 	if !strings.HasPrefix(rootPath, common.VideoServePath) {
 		// We may being attacked!
-		c.HTML(http.StatusBadRequest, "error.html", gin.H{
+		common.RenderPage(c, http.StatusBadRequest, "error.html", gin.H{
 			"message":  fmt.Sprintf("只能访问指定路径下的文件"),
 			"option":   common.OptionMap,
 			"username": c.GetString("username"),
@@ -29,7 +29,7 @@ func GetVideoPage(c *gin.Context) {
 	}
 	root, err := os.Stat(rootPath)
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "error.html", gin.H{
+		common.RenderPage(c, http.StatusBadRequest, "error.html", gin.H{
 			"message":  err.Error(),
 			"option":   common.OptionMap,
 			"username": c.GetString("username"),
@@ -43,7 +43,7 @@ func GetVideoPage(c *gin.Context) {
 		var tempFiles []model.LocalFile
 		files, err := ioutil.ReadDir(rootPath)
 		if err != nil {
-			c.HTML(http.StatusBadRequest, "error.html", gin.H{
+			common.RenderPage(c, http.StatusBadRequest, "error.html", gin.H{
 				"message":  err.Error(),
 				"option":   common.OptionMap,
 				"username": c.GetString("username"),
@@ -99,7 +99,7 @@ func GetVideoPage(c *gin.Context) {
 		}
 		localFiles = append(localFiles, tempFiles...)
 
-		c.HTML(http.StatusOK, "video.html", gin.H{
+		common.RenderPage(c, http.StatusOK, "video.html", gin.H{
 			"message":   "",
 			"option":    common.OptionMap,
 			"username":  c.GetString("username"),

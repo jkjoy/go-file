@@ -451,6 +451,23 @@
                                                 </div>
                                                 <div class="column">
                                                     <h3>系统自定义</h3>
+                                                    <label class="label" for="inputWebsiteTheme">默认主题模板</label>
+                                                    <div class="field has-addons">
+                                                        <div class="control is-expanded">
+                                                            <div class="select is-fullwidth">
+                                                                <select id="inputWebsiteTheme" aria-describedby="websiteThemeHelp">
+                                                                    {{range .themes}}
+                                                                    <option value="{{.ID}}" {{if eq $.option.WebsiteTheme .ID}}selected{{end}}>{{.Name}}</option>
+                                                                    {{end}}
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="control">
+                                                            <button class="button is-light" type="button"
+                                                                    onclick="updateOption('WebsiteTheme', 'inputWebsiteTheme')">更新</button>
+                                                        </div>
+                                                    </div>
+                                                    <p class="help" id="websiteThemeHelp">新访客和选择“跟随站点”的浏览器使用此模板。顶部切换只影响当前浏览器。</p>
                                                     <label class="label">修改网站名</label>
                                                     <div class="field has-addons">
                                                         <div class="control is-light is-expanded">

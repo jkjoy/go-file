@@ -26,6 +26,7 @@ func InitOptionMap() {
 	common.OptionMap["ImageUploadPermission"] = strconv.Itoa(common.ImageUploadPermission)
 	common.OptionMap["ImageDownloadPermission"] = strconv.Itoa(common.ImageDownloadPermission)
 	common.OptionMap["WebsiteName"] = "Go File"
+	common.OptionMap["WebsiteTheme"] = common.DefaultThemeID
 	common.OptionMap["FooterInfo"] = ""
 	common.OptionMap["Version"] = common.Version
 	common.OptionMap["Notice"] = ""
@@ -36,6 +37,9 @@ func InitOptionMap() {
 }
 
 func UpdateOption(key string, value string) error {
+	if key == "WebsiteTheme" && !common.IsValidTheme(value) {
+		return errors.New("无效的主题模板")
+	}
 	if key == "StatEnabled" && value == "true" && !common.RedisEnabled {
 		return errors.New("未启用 Redis，无法启用统计功能")
 	}
@@ -56,6 +60,9 @@ func UpdateOption(key string, value string) error {
 }
 
 func updateOptionMap(key string, value string) {
+	if key == "WebsiteTheme" && !common.IsValidTheme(value) {
+		value = common.DefaultThemeID
+	}
 	common.OptionMap[key] = value
 	if strings.HasSuffix(key, "Permission") {
 		intValue, _ := strconv.Atoi(value)

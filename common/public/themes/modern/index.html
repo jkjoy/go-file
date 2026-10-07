@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+{{template "header" .}}
+<body>
+<div class="site-shell">
+    {{template "nav" .}}
+    <main class="container modern-home">
+        <header class="workspace-heading">
+            <div>
+                <h1>{{if .isQuery}}搜索结果{{else}}文件分享{{end}}</h1>
+                <p>{{if .isQuery}}查找文件，快速获取需要的内容。{{else}}上传、分享，让文件在设备之间自由流转。{{end}}</p>
+            </div>
+            <button class="button is-primary" type="button" onclick="showUploadModal()">上传文件</button>
+        </header>
+        <article id="messageToast" class="message is-danger" style="display: none" role="alert">
+            <div class="message-body" id="messageToastText"></div>
+        </article>
+        {{template "progress"}}
+        <div class="workspace-toolbar">
+            <span class="file-count">{{if .isQuery}}本页找到{{else}}本页{{end}} <strong>{{len .files}}</strong> 个文件</span>
+            {{if .isQuery}}<span class="query-summary">“{{.query}}” <a href="/">清除搜索</a></span>{{else}}<span class="view-label">最近上传</span>{{end}}
+        </div>
+        <section class="modern-file-list" aria-label="共享文件">
+            {{range .files}}
+            <article class="modern-file-row" id="file-{{.Id}}">
+                <div class="file-icon" aria-hidden="true"><img src="/public/icon/file.svg" width="24" height="24" alt=""></div>
+                <div class="file-main">
+                    <h2 class="file-name"><button type="button" onclick="displayFile('/upload/{{.Link}}')">{{.Filename}}</button></h2>
+                    {{if .Description}}<p class="file-description">{{.Description}}</p>{{end}}
+                    <div class="file-meta">
+                        <span>{{.Uploader}}</span>
+                        <span>{{.Time}}</span>
+                        <span id="counter-{{.Id}}">{{.DownloadCounter}} 次下载</span>
+                    </div>
+                </div>
+                <div class="file-actions">
+                    {{if $.username}}
+                    <button class="file-action is-danger" type="button" onclick="deleteFile({{.Id}}, '{{.Link}}')" title="删除文件" aria-label="删除 {{.Filename}}"><img src="/public/icon/delete.svg" alt="" width="20" height="20"></button>
+                    {{end}}
+                    <button class="file-action" type="button" onclick="showQRCode('/upload/{{.Link}}')" title="二维码" aria-label="显示 {{.Filename}} 的二维码"><img src="/public/icon/qrcode.svg" alt="" width="20" height="20"></button>
+                    <button class="file-action" type="button" onclick="copyLink('/upload/{{.Link}}')" title="复制链接" aria-label="复制 {{.Filename}} 的链接"><img src="/public/icon/copy.svg" alt="" width="20" height="20"></button>
+                    <a class="file-action" target="_blank" rel="noopener" href="/upload/{{.Link}}" title="打开文件" aria-label="打开 {{.Filename}}"><img src="/public/icon/play.svg" alt="" width="20" height="20"></a>
+                    <a class="file-action download-action" download="{{.Filename}}" href="/upload/{{.Link}}" onclick="updateDownloadCounter('counter-{{.Id}}')"><img src="/public/icon/download.svg" alt="" width="18" height="18"><span>下载</span></a>
+                </div>
+            </article>
+            {{else}}
+            <div class="empty-state">
+                <div class="empty-icon" aria-hidden="true"><img src="/public/icon/file.svg" alt="" width="32" height="32"></div>
+                <h2>{{if .isQuery}}没有找到匹配的文件{{else}}分享，从第一个文件开始{{end}}</h2>
+                <p>{{if .isQuery}}试试其他关键词，或返回查看全部文件。{{else}}上传文件后，就可以通过链接或二维码分享给其他设备。{{end}}</p>
+                {{if .isQuery}}<a class="button is-light" href="/">查看全部文件</a>{{else}}<button class="button is-primary" type="button" onclick="showUploadModal()">上传文件</button>{{end}}
+            </div>
+            {{end}}
+        </section>
+        {{if .files}}
+        <nav class="pagination is-centered" role="navigation" aria-label="文件分页">
+            <a class="pagination-previous" href="/?p={{.prev}}{{if .isQuery}}&amp;query={{.query}}{{end}}">上一页</a>
+            <a class="pagination-next" href="/?p={{.next}}{{if .isQuery}}&amp;query={{.query}}{{end}}">下一页</a>
+        </nav>
+        {{end}}
+    </main>
+    {{template "footer" .}}
+</div>
+{{template "modal"}}
+{{template "notice" .}}
+</body>
+</html>

@@ -10,20 +10,12 @@ import (
 	"go-file/common"
 	"go-file/model"
 	"go-file/router"
-	"html/template"
 	"os"
 	"strconv"
 )
 
-func loadTemplate() *template.Template {
-	var funcMap = template.FuncMap{
-		"unescape": common.UnescapeHTML,
-	}
-	t := template.Must(template.New("").Funcs(funcMap).ParseFS(common.FS, "public/*.html"))
-	return t
-}
-
 func main() {
+	common.Init()
 	common.SetupGinLog()
 	common.SysLog(fmt.Sprintf("Go File %s started at port %d", common.Version, *common.Port))
 	if os.Getenv("GIN_MODE") != "debug" {
@@ -52,7 +44,11 @@ func main() {
 
 	// Initialize HTTP server
 	server := gin.Default()
-	server.SetHTMLTemplate(loadTemplate())
+	templates, err := common.NewThemeRenderer(common.FS)
+	if err != nil {
+		common.FatalLog(err)
+	}
+	server.HTMLRender = templates
 
 	// Initialize session store
 	var store sessions.Store
