@@ -1,0 +1,24 @@
+{{define "notice"}}
+<div id="notice" style="display: none">
+    <div class="notice-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 9v4m0 4h.01"/>
+            <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/>
+        </svg>
+        公告
+    </div>
+    <div class="notice-body">{{.option.Notice | unescape}}</div>
+    <button class="btn btn-outline notice-ok" type="button"
+            onclick="document.getElementById('notice').style.display='none'">好的</button>
+</div>
+<script>
+    (function () {
+        let notice = "{{.option.Notice}}";
+        if (notice.trim() !== "" && localStorage.getItem("notice") !== notice) {
+            localStorage.setItem("notice", notice);
+            document.getElementById('notice').style.display = 'block';
+        }
+    })();
+</script>
+{{end}}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+{{template "header" .}}
+<body>
+<div>
+    {{template "nav" .}}
+    <div class="container" ondrop="imageDropHandler(event);" ondragover="imageDragOverHandler(event);">
+        <div class="normal-container">
+            <article id="messageToast" class="message" style="display: none">
+                <div class="message-body" id="messageToastText"></div>
+            </article>
+            {{template "progress"}}
+            <div class="dropzone" id="imageDropZone">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.4 8.3"/>
+                    <path d="M12 12v9m0-9 3.5 3.5M12 12l-3.5 3.5"/>
+                </svg>
+                <p id="imageDropZonePrompt">拖拽上传或者复制粘贴</p>
+                <p class="dropzone-hint">支持多选文件 · 可直接粘贴截图 · 拖入即传</p>
+                <input id="imageFileInput" type="file" accept="image/*" multiple hidden
+                       onchange="document.getElementById('fileInput').files = this.files; uploadImage()">
+                <button class="btn btn-grad" type="button"
+                        onclick="document.getElementById('imageFileInput').click()">选择图片</button>
+                <script>
+                    document.onpaste = function (ev) {
+                        if (ev.clipboardData.files.length) {
+                            document.getElementById('fileInput').files = ev.clipboardData.files;
+                            uploadImage();
+                        }
+                    }
+                </script>
+            </div>
+            <div style="display: none" id="promptBox">
+                <progress class="progress is-success" value="0" max="100" id="imageUploadProgress"
+                          style="margin-top: 14px"></progress>
+                <div class="card upload-card" style="margin-top: 12px">
+                    <div class="upload-status" id="imageUploadStatus"></div>
+                    <div class="upload-result" id="imageUploadPanel"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{template "footer" .}}
+</div>
+
+{{template "modal"}}
+{{template "notice" .}}
+
+</body>
+</html>

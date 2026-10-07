@@ -24,6 +24,7 @@ type Theme struct {
 var Themes = []Theme{
 	{ID: DefaultThemeID, Name: "经典", Description: "保留原有界面与熟悉的操作方式"},
 	{ID: "modern", Name: "现代简约", Description: "清晰布局、柔和留白与现代文件列表", Stylesheet: "/public/static/theme-modern.css"},
+	{ID: "nebula", Name: "星云渐变", Description: "品牌渐变、明暗自适应与文件类型徽标", Stylesheet: "/public/static/theme-nebula.css"},
 }
 
 func IsValidTheme(id string) bool {

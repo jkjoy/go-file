@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+{{template "header" .}}
+<body>
+<div>
+    {{template "nav" .}}
+    <div class="container">
+        <div class="normal-container">
+            <article id="messageToast" class="message" style="display: none">
+                <div class="message-body" id="messageToastText"></div>
+            </article>
+            {{if not .files}}
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 8.2 12 3 3 8.2v7.6L12 21l9-5.2V8.2Z"/>
+                    <path d="M3.3 8.3 12 13l8.7-4.7"/>
+                    <path d="M12 13v8"/>
+                </svg>
+                {{if .isQuery}}
+                <p class="empty-title">无匹配文件</p>
+                <p class="empty-text">换个关键词试试，或 <a href="/">清空搜索</a> 浏览全部文件</p>
+                {{else}}
+                <p class="empty-title">这里还空空如也</p>
+                <p class="empty-text">点击下方按钮，上传第一个文件吧</p>
+                <a class="btn btn-grad" onclick="showUploadModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 16V4m0 0 4.5 4.5M12 4 7.5 8.5"/>
+                        <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>
+                    </svg>
+                    上传文件
+                </a>
+                {{end}}
+            </div>
+            {{end}}
+            {{template "progress"}}
+            <div class="file-list">
+                {{range $index, $file := .files}}
+                <article class="file-card" id="file-{{$file.Id}}">
+                    <span class="file-ext" aria-hidden="true">FILE</span>
+                    <div class="file-main">
+                        <a class="file-name" onclick="displayFile('/upload/{{$file.Link}}')">{{$file.Filename}}</a>
+                        <div class="file-meta">
+                            <span class="meta-chip">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>
+                                </svg>
+                                {{$file.Uploader}}
+                            </span>
+                            <span class="meta-chip">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <rect x="3" y="5" width="18" height="16" rx="2"/>
+                                    <path d="M8 3v4m8-4v4M3 10h18"/>
+                                </svg>
+                                {{$file.Time}}
+                            </span>
+                            <span class="meta-chip" id="counter-{{$file.Id}}">{{$file.DownloadCounter}} 次下载</span>
+                        </div>
+                        {{if $file.Description}}
+                        <p class="file-desc">{{$file.Description}}</p>
+                        {{end}}
+                    </div>
+                    <div class="file-actions">
+                        {{if $.username}}
+                        <button class="icon-btn is-danger" type="button" title="删除"
+                                onclick="deleteFile({{$file.Id}}, '{{$file.Link}}')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M4 7h16M10 11v6m4-6v6"/>
+                                <path d="M6 7v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7"/>
+                                <path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                        </button>
+                        {{end}}
+                        <button class="icon-btn" type="button" title="二维码"
+                                onclick="showQRCode('/upload/{{$file.Link}}')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                                <path d="M14 14h3v3h-3zM20 14v.01M14 20v.01M17.5 17.5 20 20v1h-2.5v-3.5Z"/>
+                            </svg>
+                        </button>
+                        <button class="icon-btn" type="button" title="复制链接"
+                                onclick="copyLink('/upload/{{$file.Link}}')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <rect x="9" y="9" width="12" height="12" rx="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                        </button>
+                        <a class="icon-btn" title="打开 / 预览" target="_blank" href="/upload/{{$file.Link}}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                                <path d="M14 3h7v7"/><path d="m10 14 11-11"/>
+                            </svg>
+                        </a>
+                        <a class="dl-btn" download="{{$file.Filename}}" href="/upload/{{$file.Link}}"
+                           onclick="updateDownloadCounter('counter-{{$file.Id}}')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M12 4v12m0 0 4.5-4.5M12 16l-4.5-4.5"/>
+                                <path d="M4 19h16"/>
+                            </svg>
+                            下载
+                        </a>
+                    </div>
+                </article>
+                {{end}}
+            </div>
+            {{if .files}}
+            <nav class="pagination" role="navigation" aria-label="pagination">
+                <a class="page-btn" href="/?p={{.prev}}{{if .isQuery}}&amp;query={{.query}}{{end}}">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="m15 18-6-6 6-6"/>
+                    </svg>
+                    上一页
+                </a>
+                <a class="page-btn {{if eq .next 0}}is-disabled{{end}}"
+                   href="/?p={{.next}}{{if .isQuery}}&amp;query={{.query}}{{end}}">
+                    下一页
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="m9 6 6 6-6 6"/>
+                    </svg>
+                </a>
+            </nav>
+            {{end}}
+        </div>
+    </div>
+    {{template "footer" .}}
+</div>
+
+{{template "modal"}}
+{{template "notice" .}}
+
+<script>
+    // 根据扩展名填充文件类型徽标
+    (function () {
+        let families = {
+            zip: 'archive', rar: 'archive', '7z': 'archive', tar: 'archive', gz: 'archive', bz2: 'archive', dmg: 'archive', iso: 'archive',
+            png: 'image', jpg: 'image', jpeg: 'image', gif: 'image', webp: 'image', svg: 'image', bmp: 'image', ico: 'image', heic: 'image',
+            mp4: 'video', webm: 'video', ogv: 'video', mov: 'video', mkv: 'video', avi: 'video', m4v: 'video',
+            mp3: 'audio', wav: 'audio', ogg: 'audio', flac: 'audio', m4a: 'audio', aac: 'audio',
+            pdf: 'doc', doc: 'doc', docx: 'doc', ppt: 'doc', pptx: 'doc', xls: 'doc', xlsx: 'doc', txt: 'doc', md: 'doc', epub: 'doc',
+            js: 'code', ts: 'code', go: 'code', py: 'code', html: 'code', css: 'code', json: 'code', java: 'code', c: 'code',
+            cpp: 'code', sh: 'code', php: 'code', rb: 'code', rs: 'code', sql: 'code', yml: 'code', yaml: 'code', xml: 'code'
+        };
+        document.querySelectorAll('.file-card').forEach(function (card) {
+            let nameEl = card.querySelector('.file-name');
+            let badge = card.querySelector('.file-ext');
+            if (!nameEl || !badge) return;
+            let parts = nameEl.textContent.trim().split('.');
+            let ext = parts.length > 1 ? parts.pop().toLowerCase() : '';
+            badge.dataset.family = families[ext] || 'other';
+            badge.textContent = ext ? ext.slice(0, 5).toUpperCase() : 'FILE';
+        });
+    })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+{{template "header" .}}
+<body>
+<div>
+    {{template "nav" .}}
+    <div class="container">
+        <div class="normal-container">
+            <article id="messageToast" class="message" style="display: none">
+                <div class="message-body" id="messageToastText"></div>
+            </article>
+            {{template "progress"}}
+            <div class="card explorer-card">
+                <div class="table-scroll">
+                    <table class="explorer-table">
+                        <thead>
+                        <tr>
+                            <th style="width:56%">名称</th>
+                            <th style="width:12%">操作</th>
+                            <th style="width:12%">文件大小</th>
+                            <th style="width:20%">更新时间</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{range $index, $file := .files}}
+                        <tr>
+                            {{if $file.IsFolder }}
+                            <td>
+                                <span class="cell-name">
+                                    <svg class="icon-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                                         aria-hidden="true">
+                                        <path d="M3 7V5a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v2"/>
+                                        <path d="M3 7h18l-1.6 11.2A2 2 0 0 1 17.4 20H6.6a2 2 0 0 1-2-1.8L3 7Z"/>
+                                    </svg>
+                                    <a class="folder-link" href="{{$file.Link}}">{{$file.Name}}</a>
+                                </span>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            {{ else }}
+                            <td>
+                                <span class="cell-name">
+                                    <svg class="icon-file" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                                         aria-hidden="true">
+                                        <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/>
+                                        <path d="M14 3v5h5"/>
+                                    </svg>
+                                    <a class="file-link" href="{{$file.Link}}" target="_blank"
+                                       download="{{$file.Name}}">{{$file.Name}}</a>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="cell-ops">
+                                    <a class="icon-btn" title="下载" href="{{$file.Link}}" download="{{$file.Name}}">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M12 4v12m0 0 4.5-4.5M12 16l-4.5-4.5"/>
+                                            <path d="M4 19h16"/>
+                                        </svg>
+                                    </a>
+                                    <span class="icon-btn" title="复制链接" style="cursor: pointer"
+                                          onclick='copyLink("/{{$file.Link}}")'>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <rect x="9" y="9" width="12" height="12" rx="2"/>
+                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                        </svg>
+                                    </span>
+                                </span>
+                            </td>
+                            <td>{{$file.Size}}</td>
+                            {{ end }}
+                            <td class="cell-time">{{$file.ModifiedTime}}</td>
+                        </tr>
+                        {{end}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {{if .readmeFileLink}}
+            <script src="/public/lib/marked.umd.min.js"></script>
+            <script src="/public/lib/purify.min.js"></script>
+            <div class="card readme-card">
+                <div id="readme"></div>
+                <script>
+                    (function () {
+                        let readmeDiv = document.getElementById("readme");
+                        fetch("{{.readmeFileLink}}").then(function (res) {
+                            return res.text();
+                        }).then(function (markdown) {
+                            readmeDiv.innerHTML = DOMPurify.sanitize(marked.parse(markdown));
+                        });
+                    })();
+                </script>
+            </div>
+            {{end}}
+        </div>
+    </div>
+    {{template "footer" .}}
+</div>
+
+{{template "modal"}}
+{{template "notice" .}}
+
+</body>
+</html>

@@ -115,7 +115,7 @@ func TestRenderPageProvidesNavigationAndThemeContext(t *testing.T) {
 	if response.Code != http.StatusForbidden {
 		t.Fatalf("got status %d, want forbidden", response.Code)
 	}
-	if got, want := response.Body.String(), "modern|modern|/explorer|report|admin|Test Files|2"; got != want {
+	if got, want := response.Body.String(), "modern|modern|/explorer|report|admin|Test Files|3"; got != want {
 		t.Fatalf("got %q, want %q", got, want)
 	}
 }
@@ -166,6 +166,10 @@ func TestEmbeddedThemesRenderEveryPage(t *testing.T) {
 					hasModernStyle := strings.Contains(response.Body.String(), "/public/static/theme-modern.css")
 					if hasModernStyle != (theme.ID == "modern") {
 						t.Fatal("page inherited the wrong theme stylesheet")
+					}
+					hasNebulaStyle := strings.Contains(response.Body.String(), "/public/static/theme-nebula.css")
+					if hasNebulaStyle != (theme.ID == "nebula") {
+						t.Fatal("page inherited the wrong nebula stylesheet")
 					}
 				})
 			}

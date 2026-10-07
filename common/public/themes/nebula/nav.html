@@ -1,0 +1,80 @@
+{{define "nav"}}
+<nav class="topnav" role="navigation" aria-label="main navigation" id="nav">
+    <div class="container topnav-inner">
+        <a class="brand" href="/">
+            <span class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 8.2 12 3 3 8.2v7.6L12 21l9-5.2V8.2Z"/>
+                    <path d="M3.3 8.3 12 13l8.7-4.7"/>
+                    <path d="M12 13v8"/>
+                </svg>
+            </span>
+            <span>{{.option.WebsiteName}}</span>
+        </a>
+        <div class="nav-menu" id="mainNavbar">
+            <div class="nav-links">
+                <a class="nav-link {{if eq .pagePath "/"}}is-current{{end}}" href="/">首页</a>
+                <a class="nav-link {{if eq .pagePath "/explorer"}}is-current{{end}}" href="/explorer">文件</a>
+                <a class="nav-link {{if eq .pagePath "/image"}}is-current{{end}}" href="/image">图床</a>
+            </div>
+            <div class="nav-actions">
+                <form class="nav-search" action="/" method="get" role="search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" aria-hidden="true">
+                        <circle cx="11" cy="11" r="7"/>
+                        <path d="m20 20-3.5-3.5"/>
+                    </svg>
+                    <label class="is-sr-only" for="searchInput">搜索文件</label>
+                    <input type="search" id="searchInput" name="query" value="{{.query}}"
+                           placeholder="搜索文件..." autocomplete="off"/>
+                </form>
+                <div class="nav-theme">
+                    <label class="is-sr-only" for="themeSelect">主题模板</label>
+                    <div class="select is-small">
+                        <select id="themeSelect" onchange="switchTheme(this.value)" aria-label="主题模板">
+                            <option value="default" {{if not .themePreference}}selected{{end}}>跟随站点</option>
+                            {{range .themes}}
+                            <option value="{{.ID}}" {{if eq $.themePreference .ID}}selected{{end}}>{{.Name}}</option>
+                            {{end}}
+                        </select>
+                    </div>
+                </div>
+                <a class="btn btn-grad nav-upload" onclick="showUploadModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 16V4m0 0 4.5 4.5M12 4 7.5 8.5"/>
+                        <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>
+                    </svg>
+                    上传
+                </a>
+                {{if not .username}}
+                <a class="btn btn-outline" href="/login">登录</a>
+                {{else}}
+                <div class="nav-user">
+                    <button class="nav-user-btn" type="button">
+                        {{.username}}
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="m6 9 6 6 6-6"/>
+                        </svg>
+                    </button>
+                    <div class="nav-user-menu">
+                        <a href="/manage">系统管理</a>
+                        <a href="https://github.com/songquanpeng/go-file#readme" target="_blank">项目地址</a>
+                        <hr>
+                        <a href="/logout">退出登录</a>
+                    </div>
+                </div>
+                {{end}}
+            </div>
+        </div>
+        <button class="navbar-burger nav-burger" aria-label="menu" aria-expanded="false"
+                aria-controls="mainNavbar" data-target="mainNavbar" type="button">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </button>
+    </div>
+</nav>
+{{end}}

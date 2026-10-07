@@ -1,0 +1,62 @@
+{{define "modal"}}
+<div class="modal" id="uploadModal" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
+    <div class="modal-background" onclick="closeUploadModal()"></div>
+    <div class="modal-content">
+        <button class="modal-close" type="button" aria-label="关闭" onclick="closeUploadModal()">✕</button>
+        <h3 class="modal-title" id="uploadFileDialogTitle">选择文件或者拖拽文件上传...</h3>
+        <form method="post" action="/upload" enctype="multipart/form-data">
+            <input id="fileInput" type="file" name="file" multiple required
+                   style="display: none" onchange="onFileInputChange()">
+            <div class="upload-drop-hint">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 16V4m0 0 4.5 4.5M12 4 7.5 8.5"/>
+                    <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>
+                </svg>
+                <span>把文件拖到这里，或点击下方「选择文件」</span>
+            </div>
+            <div class="field">
+                <label class="label" for="fileUploadDescription">描述信息</label>
+                <div class="control">
+                    <textarea class="textarea" id="fileUploadDescription" name="description"
+                              placeholder="请在此处输入描述信息，如果不选择文件进行上传，系统将根据此处的描述信息自动创建文本文件"></textarea>
+                </div>
+            </div>
+            <input id="submitBtn" type="submit" name="Upload" style="display: none">
+        </form>
+        <div class="modal-actions">
+            <button class="btn btn-outline" type="button" onclick="onChooseBtnClicked(event)">选择文件</button>
+            <button class="btn btn-ghost" type="button" onclick="closeUploadModal()">取消</button>
+            <button class="btn btn-primary" type="button" onclick="uploadFile()">上传</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="qrcodeModal">
+    <div class="modal-background" onclick="closeModal('qrcodeModal')"></div>
+    <div class="modal-content">
+        <button class="modal-close" type="button" aria-label="关闭" onclick="closeModal('qrcodeModal')">✕</button>
+        <canvas id="qrcode" height="200" width="200"></canvas>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<div class="modal" id="generalModal">
+    <div class="modal-background" onclick="closeModal('generalModal')"></div>
+    <div class="modal-content">
+        <button class="modal-close" type="button" aria-label="关闭" onclick="closeModal('generalModal')">✕</button>
+        <h3 class="modal-title" id="generalModalTitle"></h3>
+        <div class="modal-text" id="generalModalContent"></div>
+    </div>
+</div>
+
+<div class="modal" id="displayModal">
+    <div class="modal-background" onclick="closeModal('displayModal')"></div>
+    <div class="modal-content">
+        <button class="modal-close" type="button" aria-label="关闭" onclick="closeModal('displayModal')">✕</button>
+        <h3 class="modal-title" id="displayModalTitle"></h3>
+        <div class="modal-text center-container" id="displayModalContent"></div>
+    </div>
+</div>
+{{end}}
