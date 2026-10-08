@@ -1,4 +1,5 @@
 let hiddenTextArea = undefined;
+let toastTimeout = undefined;
 
 function showUploadModal() {
     if (location.href.split('/')[3].startsWith("explorer")) {
@@ -308,9 +309,13 @@ function copyText(text) {
 
 function showToast(message, type = "success", timeout = 2900) {
     let toast = document.getElementById("toast");
+    clearTimeout(toastTimeout);
     toast.innerText = message;
+    toast.className = `notification is-${type}`;
+    // Restart the entrance animation when a newer message replaces a visible toast.
+    void toast.offsetWidth;
     toast.className = `show notification is-${type}`;
-    setTimeout(() => {
+    toastTimeout = setTimeout(() => {
         toast.className = "";
     }, timeout);
 }
@@ -352,24 +357,29 @@ async function loadOptions() {
 async function updateOption(key, inputElementId, originValue = "") {
     let inputElement = document.getElementById(inputElementId);
     let value = inputElement.value;
-    let response = await fetch("/api/option", {
-        method: "PUT",
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            key: key,
-            value: value
-        })
-    });
-    let result = await response.json();
-    if (result.success) {
+    try {
+        let response = await fetch("/api/option", {
+            method: "PUT",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                key: key,
+                value: value
+            })
+        });
+        let result = await response.json();
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || "请稍后重试");
+        }
         showToast(`更新成功`, "success");
-    } else {
-        showToast(`更新失败：${result.message}`, "danger");
+        return true;
+    } catch (error) {
+        showToast(`更新失败：${error.message}`, "danger");
         if (originValue !== "") {
             inputElement.value = originValue;
         }
+        return false;
     }
 }
 

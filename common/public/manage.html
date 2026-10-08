@@ -230,6 +230,11 @@
                                                         }
 
                                                         function renderTrend(trend) {
+                                                            let style = getComputedStyle(document.body);
+                                                            let textColor = style.getPropertyValue('--ink-soft').trim() || style.color;
+                                                            let mutedColor = style.getPropertyValue('--muted').trim() || textColor;
+                                                            let borderColor = style.getPropertyValue('--border').trim() || '#e5e7eb';
+                                                            let surfaceColor = style.getPropertyValue('--surface').trim() || '#ffffff';
                                                             let hourly = trend.granularity === "hour";
                                                             let names = trend.items.map(item => hourly ? item.name.slice(11) + ":00" : item.name.slice(5));
                                                             let series = [{
@@ -248,12 +253,13 @@
                                                                 });
                                                             }
                                                             chart.setOption({
-                                                                title: {text: hourly ? '今日每小时访问量' : '每日访问趋势'},
-                                                                tooltip: {trigger: 'axis'},
-                                                                legend: {top: 0, right: 0},
-                                                                grid: {left: 48, right: 16, top: 48, bottom: 32},
-                                                                xAxis: {type: 'category', boundaryGap: false, data: names},
-                                                                yAxis: {type: 'value', minInterval: 1},
+                                                                textStyle: {color: textColor},
+                                                                title: {text: hourly ? '今日每小时访问量' : '每日访问趋势', textStyle: {color: textColor}},
+                                                                tooltip: {trigger: 'axis', backgroundColor: surfaceColor, borderColor: borderColor, textStyle: {color: textColor}},
+                                                                legend: {top: 28, right: 0, textStyle: {color: textColor}, inactiveColor: mutedColor},
+                                                                grid: {left: 48, right: 16, top: 72, bottom: 32},
+                                                                xAxis: {type: 'category', boundaryGap: false, data: names, axisLabel: {color: mutedColor}, axisLine: {lineStyle: {color: borderColor}}},
+                                                                yAxis: {type: 'value', minInterval: 1, axisLabel: {color: mutedColor}, splitLine: {lineStyle: {color: borderColor}}},
                                                                 series: series
                                                             }, true);
                                                         }
@@ -492,7 +498,7 @@
                                                     <div class="field has-addons">
                                                         <p class="control">
                                                     <span class="select">
-                                                      <select id="StatEnabled" onchange="updateOption('StatEnabled', 'StatEnabled', '{{.StatEnabled}}').then(() => setTimeout(() => location.reload(), 800))">
+                                                      <select id="StatEnabled" onchange="updateOption('StatEnabled', 'StatEnabled', '{{.StatEnabled}}').then(success => { if (success) setTimeout(() => location.reload(), 800); })">
                                                           <option value="false">不启用</option>
                                                           <option value="true">启用</option>
                                                       </select>

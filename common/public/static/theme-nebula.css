@@ -98,7 +98,7 @@ body {
     overflow-wrap: break-word;
 }
 
-body > div {
+body > div:first-of-type:not(.modal) {
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -300,7 +300,8 @@ hr {
 }
 
 .nav-search input::placeholder {
-    color: var(--faint);
+    color: var(--muted);
+    opacity: 1;
 }
 
 .nav-search input:focus {
@@ -575,6 +576,19 @@ hr {
     box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
+.input,
+.select select {
+    height: auto;
+    min-height: 42px;
+    line-height: 1.5;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+    color: var(--muted);
+    opacity: 1;
+}
+
 .textarea {
     min-height: 96px;
     resize: vertical;
@@ -584,26 +598,47 @@ hr {
 .select {
     display: inline-block;
     position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+.select:not(.is-multiple) {
+    height: auto;
 }
 
 .select select {
     appearance: none;
     -webkit-appearance: none;
-    padding-right: 34px;
     cursor: pointer;
 }
 
-.select::after {
+.select select:not([multiple]) {
+    padding-right: 36px;
+}
+
+.select select option {
+    background: var(--bg-soft);
+    color: var(--ink);
+}
+
+.select:not(.is-multiple):not(.is-loading)::after {
     content: "";
     position: absolute;
     right: 14px;
     top: 50%;
     width: 7px;
     height: 7px;
+    margin-top: 0;
+    border: 0;
+    border-radius: 0;
     border-right: 2px solid var(--muted);
     border-bottom: 2px solid var(--muted);
     transform: translateY(-70%) rotate(45deg);
     pointer-events: none;
+}
+
+.select:not(.is-multiple):not(.is-loading):hover::after {
+    border-color: var(--ink-soft);
 }
 
 /* Bulma has-addons 形态(main.js 动态生成的内容也走这层) */
@@ -1091,6 +1126,64 @@ hr {
 }
 
 /* ---------- 管理后台 ---------- */
+.content-tab {
+    color: var(--ink);
+}
+
+.content-tab h1,
+.content-tab h2,
+.content-tab h3,
+.content-tab h4,
+.content-tab h5,
+.content-tab h6,
+.content-tab strong {
+    color: var(--ink);
+}
+
+.content-tab .help,
+.content-tab .heading {
+    color: var(--muted);
+}
+
+.content-tab .has-text-grey {
+    color: var(--muted) !important;
+}
+
+.content-tab .table {
+    background: var(--surface-soft);
+    color: var(--ink);
+}
+
+.content-tab .table th,
+.content-tab .table thead td,
+.content-tab .table tfoot td {
+    color: var(--ink-soft);
+}
+
+#statSection > .level,
+#statSection .level-right {
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+#statSection .level-right {
+    margin-left: 0;
+    min-width: 0;
+    max-width: 100%;
+}
+
+#statSection .level-right .level-item {
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+}
+
+#statRangeButtons .button.is-info {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent-strong);
+}
+
 .tabs {
     border-bottom: 1px solid var(--border);
     margin-bottom: 20px;
@@ -1310,6 +1403,9 @@ hr {
 /* ---------- Toast(#toast) ---------- */
 #toast {
     visibility: hidden;
+    display: block;
+    flex: none;
+    min-height: 0;
     position: fixed;
     left: 0;
     right: 0;
@@ -1323,8 +1419,11 @@ hr {
     background: rgba(23, 33, 54, .94);
     color: #f5f7ff;
     font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
     text-align: center;
     box-shadow: var(--shadow-pop);
+    pointer-events: none;
 }
 
 #toast.is-success {
@@ -1620,6 +1719,7 @@ progress.progress::-moz-progress-bar {
    (如上传结果行、配置项、新版本下载按钮),以下样式保证它们融入新主题。 */
 .box {
     background: var(--surface);
+    color: var(--ink);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: var(--shadow-card);
@@ -1749,8 +1849,13 @@ progress.progress::-moz-progress-bar {
 }
 
 .tags.has-addons .tag.is-info:last-child { color: #0e7490; background: rgba(6, 182, 212, .14); }
-.tags.has-addons .tag.is-success:last-child { color: var(--ok); background: var(--ok-soft); }
-.tags.has-addons .tag.is-primary:last-child { color: var(--accent); background: var(--accent-soft); }
+.tags.has-addons .tag.is-success:last-child { color: #166534; background: var(--ok-soft); }
+.tags.has-addons .tag.is-primary:last-child { color: var(--accent-strong); background: var(--accent-soft); }
+
+@media (prefers-color-scheme: dark) {
+    .tags.has-addons .tag.is-info:last-child { color: #67e8f9; }
+    .tags.has-addons .tag.is-success:last-child { color: #86efac; }
+}
 
 .table-container {
     overflow-x: auto;
@@ -1768,7 +1873,7 @@ progress.progress::-moz-progress-bar {
     text-align: left;
 }
 
-.table.is-hoverable tbody tr:hover {
+.table.is-hoverable tbody tr:not(.is-selected):hover {
     background: var(--surface-hover);
 }
 
