@@ -37,7 +37,7 @@ func permissionCheckHelper(c *gin.Context, requiredPermission int) {
 			common.RenderPage(c, http.StatusForbidden, "error.html", gin.H{
 				"message":  "无权访问此页面，请检查你是否登录或者是否有相关权限",
 				"option":   common.OptionMap,
-				"username": c.GetString("username"),
+				"username": username,
 			})
 		} else {
 			c.JSON(http.StatusForbidden, gin.H{

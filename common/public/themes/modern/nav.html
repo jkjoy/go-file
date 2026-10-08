@@ -15,7 +15,9 @@
         <div id="mainNavbar" class="navbar-menu">
             <div class="navbar-start nav-links">
                 <a class="navbar-item nav-link {{if eq .pagePath "/"}}is-current{{end}}" href="/" {{if eq .pagePath "/"}}aria-current="page"{{end}}>首页</a>
+                {{if .username}}
                 <a class="navbar-item nav-link {{if eq .pagePath "/explorer"}}is-current{{end}}" href="/explorer" {{if eq .pagePath "/explorer"}}aria-current="page"{{end}}>文件</a>
+                {{end}}
                 <a class="navbar-item nav-link {{if eq .pagePath "/image"}}is-current{{end}}" href="/image" {{if eq .pagePath "/image"}}aria-current="page"{{end}}>图床</a>
             </div>
             <div class="navbar-end">

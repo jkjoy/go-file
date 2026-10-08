@@ -15,7 +15,9 @@
         <div class="nav-menu" id="mainNavbar">
             <div class="nav-links">
                 <a class="nav-link {{if eq .pagePath "/"}}is-current{{end}}" href="/">首页</a>
+                {{if .username}}
                 <a class="nav-link {{if eq .pagePath "/explorer"}}is-current{{end}}" href="/explorer">文件</a>
+                {{end}}
                 <a class="nav-link {{if eq .pagePath "/image"}}is-current{{end}}" href="/image">图床</a>
             </div>
             <div class="nav-actions">
@@ -61,7 +63,6 @@
                     </button>
                     <div class="nav-user-menu">
                         <a href="/manage">系统管理</a>
-                        <a href="https://github.com/songquanpeng/go-file#readme" target="_blank">项目地址</a>
                         <hr>
                         <a href="/logout">退出登录</a>
                     </div>
