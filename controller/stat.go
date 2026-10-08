@@ -1,143 +1,28 @@
 package controller
 
 import (
-	"context"
 	"github.com/gin-gonic/gin"
 	"go-file/common"
+	"go-file/model"
 	"net/http"
-	"sort"
 	"strconv"
+	"time"
 )
 
-type ipItem struct {
-	Ip    string `json:"name"`
-	Count int    `json:"value"`
+// statDays reads the "days" query parameter, limited to the retention window.
+func statDays(c *gin.Context) int {
+	days, err := strconv.Atoi(c.DefaultQuery("days", "7"))
+	if err != nil || days < 1 {
+		days = 7
+	}
+	if days > common.StatRetentionDays {
+		days = common.StatRetentionDays
+	}
+	return days
 }
 
-type urlItem struct {
-	Url   string `json:"name"`
-	Count int    `json:"value"`
-}
-
-type reqItem struct {
-	Time  string `json:"name"`
-	Count int    `json:"value"`
-}
-
-func GetIPs(c *gin.Context) {
-	var ips []ipItem
-	ctx := context.Background()
-	rdb := common.RDB
-	iter := rdb.Scan(ctx, 0, "statIP:*", 0).Iterator()
-	for iter.Next(ctx) {
-		value, err := rdb.Get(ctx, iter.Val()).Result()
-		if err != nil {
-			c.JSON(http.StatusOK, gin.H{
-				"success": false,
-				"message": err.Error(),
-				"data":    nil,
-			})
-			return
-		}
-		count, _ := strconv.Atoi(value)
-		ips = append(ips, ipItem{
-			Ip:    iter.Val()[7:],
-			Count: count,
-		})
-	}
-	sort.Slice(ips, func(i, j int) bool {
-		return ips[i].Count > ips[j].Count
-	})
-	if len(ips) >= common.StatIPNum {
-		ips = ips[:common.StatIPNum]
-	}
-
-	if err := iter.Err(); err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-			"data":    ips,
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-		"data":    ips,
-	})
-}
-
-func GetURLs(c *gin.Context) {
-	var urls []urlItem
-	ctx := context.Background()
-	rdb := common.RDB
-	iter := rdb.Scan(ctx, 0, "statURL:*", 0).Iterator()
-	for iter.Next(ctx) {
-		value, err := rdb.Get(ctx, iter.Val()).Result()
-		if err != nil {
-			c.JSON(http.StatusOK, gin.H{
-				"success": false,
-				"message": err.Error(),
-				"data":    nil,
-			})
-			return
-		}
-		count, _ := strconv.Atoi(value)
-		urls = append(urls, urlItem{
-			Url:   iter.Val()[8:],
-			Count: count,
-		})
-	}
-	sort.Slice(urls, func(i, j int) bool {
-		return urls[i].Count > urls[j].Count
-	})
-	if len(urls) >= common.StatURLNum {
-		urls = urls[:common.StatIPNum]
-	}
-
-	if err := iter.Err(); err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-			"data":    urls,
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-		"data":    urls,
-	})
-}
-
-func GetReqs(c *gin.Context) {
-	var reqs []reqItem
-	ctx := context.Background()
-	rdb := common.RDB
-	iter := rdb.Scan(ctx, 0, "statReq:*", 0).Iterator()
-	for iter.Next(ctx) {
-		value, err := rdb.Get(ctx, iter.Val()).Result()
-		if err != nil {
-			c.JSON(http.StatusOK, gin.H{
-				"success": false,
-				"message": err.Error(),
-				"data":    nil,
-			})
-			return
-		}
-		count, _ := strconv.Atoi(value)
-		reqs = append(reqs, reqItem{
-			Time:  iter.Val()[8:],
-			Count: count,
-		})
-		sort.Slice(reqs, func(i, j int) bool {
-			return reqs[i].Time < reqs[j].Time
-		})
-	}
-
-	if err := iter.Err(); err != nil {
+func statResponse(c *gin.Context, data interface{}, err error) {
+	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": err.Error(),
@@ -145,10 +30,50 @@ func GetReqs(c *gin.Context) {
 		})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
-		"data":    reqs,
+		"data":    data,
 	})
+}
+
+// Each query flushes buffered visits first so the dashboard shows the latest numbers.
+func GetStatSummary(c *gin.Context) {
+	if err := model.FlushStats(); err != nil {
+		statResponse(c, nil, err)
+		return
+	}
+	summary, err := model.GetStatSummary(statDays(c), time.Now())
+	statResponse(c, summary, err)
+}
+
+func GetReqs(c *gin.Context) {
+	if err := model.FlushStats(); err != nil {
+		statResponse(c, nil, err)
+		return
+	}
+	trend, err := model.GetStatTrend(statDays(c), time.Now())
+	statResponse(c, trend, err)
+}
+
+func GetIPs(c *gin.Context) {
+	if err := model.FlushStats(); err != nil {
+		statResponse(c, nil, err)
+		return
+	}
+	ips, err := model.GetTopStatIPs(statDays(c), common.StatIPNum, time.Now())
+	statResponse(c, ips, err)
+}
+
+func GetURLs(c *gin.Context) {
+	if err := model.FlushStats(); err != nil {
+		statResponse(c, nil, err)
+		return
+	}
+	urls, err := model.GetTopStatURLs(statDays(c), common.StatURLNum, time.Now())
+	statResponse(c, urls, err)
+}
+
+func ClearStats(c *gin.Context) {
+	statResponse(c, nil, model.ClearStats())
 }

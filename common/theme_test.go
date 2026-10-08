@@ -176,3 +176,39 @@ func TestEmbeddedThemesRenderEveryPage(t *testing.T) {
 		}
 	}
 }
+
+func TestManagePageShowsVisitStatsOnlyToAdmins(t *testing.T) {
+	renderer, err := NewThemeRenderer(FS)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		isAdmin, statEnabled bool
+		wantDashboard        bool
+		wantDisabledHint     bool
+	}{
+		{isAdmin: true, statEnabled: true, wantDashboard: true},
+		{isAdmin: true, statEnabled: false, wantDisabledHint: true},
+		{isAdmin: false, statEnabled: true},
+	} {
+		response := httptest.NewRecorder()
+		data := gin.H{
+			"theme": themeByID(DefaultThemeID), "themes": Themes, "username": "admin",
+			"isAdmin": tc.isAdmin, "StatEnabled": tc.statEnabled, "StatRetentionDays": 30,
+			"option": map[string]string{"WebsiteName": "Test Files", "WebsiteTheme": DefaultThemeID, "Version": "test"},
+		}
+		if err := renderer.Instance("manage.html", data).Render(response); err != nil {
+			t.Fatal(err)
+		}
+		body := response.Body.String()
+		if got := strings.Contains(body, `id="reqChart"`); got != tc.wantDashboard {
+			t.Errorf("admin=%v enabled=%v: dashboard rendered = %v", tc.isAdmin, tc.statEnabled, got)
+		}
+		if got := strings.Contains(body, "访问统计未启用"); got != tc.wantDisabledHint {
+			t.Errorf("admin=%v enabled=%v: disabled hint rendered = %v", tc.isAdmin, tc.statEnabled, got)
+		}
+		if tc.wantDashboard && !strings.Contains(body, `data-days="30"`) {
+			t.Error("range buttons must use the configured retention window")
+		}
+	}
+}

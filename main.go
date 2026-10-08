@@ -11,7 +11,9 @@ import (
 	"go-file/model"
 	"go-file/router"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 )
 
 func main() {
@@ -41,6 +43,18 @@ func main() {
 
 	// Initialize options
 	model.InitOptionMap()
+
+	// Collect visit statistics in the background and keep buffered visits on shutdown
+	model.StartStatCollector()
+	go func() {
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+		<-quit
+		if err := model.FlushStats(); err != nil {
+			common.SysError("failed to flush stats: " + err.Error())
+		}
+		os.Exit(0)
+	}()
 
 	// Initialize HTTP server
 	server := gin.Default()

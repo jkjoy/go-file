@@ -118,148 +118,204 @@
                                                     checkUpdateBtn.className = checkUpdateBtn.className.replace(' is-loading', '');
                                                 }
                                             </script>
-                                            {{if .StatEnabled}}
-                                            <script src="/public/lib/echarts.min.js"></script>
+                                            {{if .isAdmin}}
+                                            <hr>
+                                            <div id="statSection">
+                                                <div class="level is-mobile" style="margin-bottom: 1rem">
+                                                    <div class="level-left">
+                                                        <h3 class="level-item" style="margin: 0">访问统计</h3>
+                                                    </div>
+                                                    {{if .StatEnabled}}
+                                                    <div class="level-right">
+                                                        <div class="level-item">
+                                                            <div class="buttons has-addons" id="statRangeButtons" style="margin: 0">
+                                                                <button class="button is-small" data-days="1" type="button">今日</button>
+                                                                <button class="button is-small" data-days="7" type="button">近 7 天</button>
+                                                                <button class="button is-small" data-days="{{.StatRetentionDays}}" type="button">近 {{.StatRetentionDays}} 天</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="level-item">
+                                                            <button class="button is-small is-light" id="statRefreshBtn" type="button">刷新</button>
+                                                        </div>
+                                                        <div class="level-item">
+                                                            <button class="button is-small is-danger is-light" id="statClearBtn" type="button">清空数据</button>
+                                                        </div>
+                                                    </div>
+                                                    {{end}}
+                                                </div>
+                                                {{if .StatEnabled}}
+                                                <div class="columns is-multiline is-mobile">
+                                                    <div class="column is-half-mobile is-one-quarter-tablet">
+                                                        <p class="heading">今日访问量 (PV)</p>
+                                                        <p class="title is-4" id="statTodayPV">-</p>
+                                                    </div>
+                                                    <div class="column is-half-mobile is-one-quarter-tablet">
+                                                        <p class="heading">今日独立 IP (UV)</p>
+                                                        <p class="title is-4" id="statTodayUV">-</p>
+                                                    </div>
+                                                    <div class="column is-half-mobile is-one-quarter-tablet">
+                                                        <p class="heading" id="statRangePVLabel">区间访问量 (PV)</p>
+                                                        <p class="title is-4" id="statRangePV">-</p>
+                                                    </div>
+                                                    <div class="column is-half-mobile is-one-quarter-tablet">
+                                                        <p class="heading" id="statRangeUVLabel">区间独立 IP (UV)</p>
+                                                        <p class="title is-4" id="statRangeUV">-</p>
+                                                    </div>
+                                                </div>
+                                                <div id="reqChart" style="height: 360px"></div>
+                                                <div class="columns">
+                                                    <div class="column">
+                                                        <h4>高频访问 URL</h4>
+                                                        <div class="table-container">
+                                                            <table class="table is-fullwidth is-narrow is-hoverable">
+                                                                <thead><tr><th style="width: 3em">#</th><th>URL</th><th class="has-text-right">次数</th></tr></thead>
+                                                                <tbody id="statURLTable"></tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    <div class="column">
+                                                        <h4>高频访问 IP</h4>
+                                                        <div class="table-container">
+                                                            <table class="table is-fullwidth is-narrow is-hoverable">
+                                                                <thead><tr><th style="width: 3em">#</th><th>IP</th><th class="has-text-right">次数</th></tr></thead>
+                                                                <tbody id="statIPTable"></tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <p class="help">统计数据保存在数据库中，保留最近 {{.StatRetentionDays}} 天；静态资源与统计接口自身的请求不计入。</p>
+                                                <script src="/public/lib/echarts.min.js"></script>
+                                                <script>
+                                                    // https://echarts.apache.org/examples/zh/index.html
+                                                    (function () {
+                                                        let statDays = 7;
+                                                        let chart = echarts.init(document.getElementById("reqChart"), null, {renderer: 'canvas'});
+                                                        window.addEventListener('resize', () => chart.resize());
 
-                                            <div id="reqChart" style="height: 500px"></div>
-                                            <div id="urlChart" style="height: 500px"></div>
-                                            <div id="ipChart" style="height: 500px"></div>
-                                            <script>
-                                                // https://echarts.apache.org/examples/zh/index.html
-                                                (async function () {
-                                                    let dom = document.getElementById("reqChart");
-                                                    let res = await fetch("/api/stat/req");
-                                                    let data = await res.json();
+                                                        async function fetchStat(path) {
+                                                            let res = await fetch(`/api/stat/${path}?days=${statDays}`);
+                                                            let result = await res.json();
+                                                            if (!result.success) {
+                                                                throw new Error(result.message);
+                                                            }
+                                                            return result.data;
+                                                        }
 
-                                                    let myChart = echarts.init(dom, null, {
-                                                        renderer: 'canvas',
-                                                        useDirtyRect: false
-                                                    });
-                                                    let names = [];
-                                                    let values = [];
-                                                    for (let i = 0; i < data.data.length; i++) {
-                                                        names.push(data.data[i].name);
-                                                        values.push(data.data[i].value);
-                                                    }
-                                                    let option = {
-                                                        title: {
-                                                            text: '访问趋势图'
-                                                        },
-                                                        xAxis: {
-                                                            type: 'category',
-                                                            data: names
-                                                        },
-                                                        yAxis: {
-                                                            type: 'value'
-                                                        },
-                                                        series: [
-                                                            {
-                                                                data: values,
+                                                        function formatNumber(n) {
+                                                            return Number(n || 0).toLocaleString();
+                                                        }
+
+                                                        // Build rows with textContent: URLs and IPs come from visitors and must not be parsed as HTML.
+                                                        function renderRank(tbodyId, items) {
+                                                            let tbody = document.getElementById(tbodyId);
+                                                            tbody.replaceChildren();
+                                                            if (!items || items.length === 0) {
+                                                                let cell = tbody.insertRow().insertCell();
+                                                                cell.colSpan = 3;
+                                                                cell.className = "has-text-grey has-text-centered";
+                                                                cell.textContent = "暂无数据";
+                                                                return;
+                                                            }
+                                                            items.forEach((item, index) => {
+                                                                let row = tbody.insertRow();
+                                                                row.insertCell().textContent = index + 1;
+                                                                let name = row.insertCell();
+                                                                name.textContent = item.name;
+                                                                name.title = item.name;
+                                                                name.style.wordBreak = "break-all";
+                                                                let value = row.insertCell();
+                                                                value.className = "has-text-right";
+                                                                value.textContent = formatNumber(item.value);
+                                                            });
+                                                        }
+
+                                                        function renderTrend(trend) {
+                                                            let hourly = trend.granularity === "hour";
+                                                            let names = trend.items.map(item => hourly ? item.name.slice(11) + ":00" : item.name.slice(5));
+                                                            let series = [{
+                                                                name: '访问量 (PV)',
                                                                 type: 'line',
-                                                                smooth: true
+                                                                smooth: true,
+                                                                areaStyle: {opacity: 0.08},
+                                                                data: trend.items.map(item => item.pv)
+                                                            }];
+                                                            if (!hourly) {
+                                                                series.push({
+                                                                    name: '独立 IP (UV)',
+                                                                    type: 'line',
+                                                                    smooth: true,
+                                                                    data: trend.items.map(item => item.uv)
+                                                                });
                                                             }
-                                                        ]
-                                                    };
+                                                            chart.setOption({
+                                                                title: {text: hourly ? '今日每小时访问量' : '每日访问趋势'},
+                                                                tooltip: {trigger: 'axis'},
+                                                                legend: {top: 0, right: 0},
+                                                                grid: {left: 48, right: 16, top: 48, bottom: 32},
+                                                                xAxis: {type: 'category', boundaryGap: false, data: names},
+                                                                yAxis: {type: 'value', minInterval: 1},
+                                                                series: series
+                                                            }, true);
+                                                        }
 
-                                                    if (option && typeof option === 'object') {
-                                                        myChart.setOption(option);
-                                                    }
-
-                                                    window.addEventListener('resize', myChart.resize);
-                                                })();
-                                                (async function () {
-                                                    let dom = document.getElementById("ipChart");
-                                                    let res = await fetch("/api/stat/ip");
-                                                    let data = await res.json();
-
-                                                    let myChart = echarts.init(dom, null, {
-                                                        renderer: 'canvas',
-                                                        useDirtyRect: false
-                                                    });
-
-                                                    let option = {
-                                                        title: {
-                                                            text: '高频访问 IP',
-                                                            subtext: `Top ${data.data.length}`,
-                                                            left: 'center'
-                                                        },
-                                                        tooltip: {
-                                                            trigger: 'item'
-                                                        },
-                                                        legend: {
-                                                            orient: 'vertical',
-                                                            left: 'left'
-                                                        },
-                                                        series: [
-                                                            {
-                                                                name: '来自',
-                                                                type: 'pie',
-                                                                radius: '50%',
-                                                                data: data.data,
-                                                                emphasis: {
-                                                                    itemStyle: {
-                                                                        shadowBlur: 10,
-                                                                        shadowOffsetX: 0,
-                                                                        shadowColor: 'rgba(0, 0, 0, 0.5)'
-                                                                    }
-                                                                }
+                                                        async function loadStats() {
+                                                            let refreshBtn = document.getElementById("statRefreshBtn");
+                                                            refreshBtn.classList.add("is-loading");
+                                                            document.querySelectorAll("#statRangeButtons .button").forEach(btn => {
+                                                                let active = Number(btn.dataset.days) === statDays;
+                                                                btn.classList.toggle("is-info", active);
+                                                                btn.classList.toggle("is-selected", active);
+                                                            });
+                                                            let rangeLabel = statDays === 1 ? "今日" : `近 ${statDays} 天`;
+                                                            document.getElementById("statRangePVLabel").textContent = `${rangeLabel}访问量 (PV)`;
+                                                            document.getElementById("statRangeUVLabel").textContent = `${rangeLabel}独立 IP (UV)`;
+                                                            try {
+                                                                let [summary, trend, urls, ips] = await Promise.all([
+                                                                    fetchStat("summary"), fetchStat("req"), fetchStat("url"), fetchStat("ip")
+                                                                ]);
+                                                                document.getElementById("statTodayPV").textContent = formatNumber(summary.todayPV);
+                                                                document.getElementById("statTodayUV").textContent = formatNumber(summary.todayUV);
+                                                                document.getElementById("statRangePV").textContent = formatNumber(summary.pv);
+                                                                document.getElementById("statRangeUV").textContent = formatNumber(summary.uv);
+                                                                renderTrend(trend);
+                                                                renderRank("statURLTable", urls);
+                                                                renderRank("statIPTable", ips);
+                                                            } catch (e) {
+                                                                showToast(`加载统计数据失败：${e.message}`, "danger");
+                                                            } finally {
+                                                                refreshBtn.classList.remove("is-loading");
                                                             }
-                                                        ]
-                                                    };
+                                                        }
 
-                                                    if (option && typeof option === 'object') {
-                                                        myChart.setOption(option);
-                                                    }
-
-                                                    window.addEventListener('resize', myChart.resize);
-                                                })();
-                                                (async function () {
-                                                    let dom = document.getElementById("urlChart");
-                                                    let res = await fetch("/api/stat/url");
-                                                    let data = await res.json();
-
-                                                    let myChart = echarts.init(dom, null, {
-                                                        renderer: 'canvas',
-                                                        useDirtyRect: false
-                                                    });
-
-                                                    let option = {
-                                                        title: {
-                                                            text: '高频访问 URL',
-                                                            subtext: `Top ${data.data.length}`,
-                                                            left: 'center'
-                                                        },
-                                                        tooltip: {
-                                                            trigger: 'item'
-                                                        },
-                                                        legend: {
-                                                            orient: 'vertical',
-                                                            left: 'left'
-                                                        },
-                                                        series: [
-                                                            {
-                                                                name: '来自',
-                                                                type: 'pie',
-                                                                radius: '50%',
-                                                                data: data.data,
-                                                                emphasis: {
-                                                                    itemStyle: {
-                                                                        shadowBlur: 10,
-                                                                        shadowOffsetX: 0,
-                                                                        shadowColor: 'rgba(0, 0, 0, 0.5)'
-                                                                    }
-                                                                }
+                                                        async function clearStats() {
+                                                            if (!confirm("确定要清空全部访问统计数据吗？此操作不可撤销。")) return;
+                                                            let res = await fetch("/api/stat", {method: "DELETE"});
+                                                            let result = await res.json();
+                                                            if (result.success) {
+                                                                showToast("统计数据已清空", "success");
+                                                                await loadStats();
+                                                            } else {
+                                                                showToast(`清空失败：${result.message}`, "danger");
                                                             }
-                                                        ]
-                                                    };
+                                                        }
 
-                                                    if (option && typeof option === 'object') {
-                                                        myChart.setOption(option);
-                                                    }
-
-                                                    window.addEventListener('resize', myChart.resize);
-                                                })();
-                                            </script>
+                                                        document.querySelectorAll("#statRangeButtons .button").forEach(btn => {
+                                                            btn.addEventListener("click", () => {
+                                                                statDays = Number(btn.dataset.days);
+                                                                loadStats();
+                                                            });
+                                                        });
+                                                        document.getElementById("statRefreshBtn").addEventListener("click", loadStats);
+                                                        document.getElementById("statClearBtn").addEventListener("click", clearStats);
+                                                        // The chart may be created while its tab is hidden; resize when the tab is shown.
+                                                        document.getElementById("statusTabList").addEventListener("click", () => setTimeout(() => chart.resize(), 0));
+                                                        loadStats();
+                                                    })();
+                                                </script>
+                                                {{else}}
+                                                <p class="has-text-grey">访问统计未启用，可在“系统设置 → 统计设置”中开启。</p>
+                                                {{end}}
+                                            </div>
                                             {{end}}
                                         </div>
                                             {{if .isAdmin}}
@@ -436,7 +492,7 @@
                                                     <div class="field has-addons">
                                                         <p class="control">
                                                     <span class="select">
-                                                      <select id="StatEnabled" onchange="updateOption('StatEnabled', 'StatEnabled', '{{.StatEnabled}}')">
+                                                      <select id="StatEnabled" onchange="updateOption('StatEnabled', 'StatEnabled', '{{.StatEnabled}}').then(() => setTimeout(() => location.reload(), 800))">
                                                           <option value="false">不启用</option>
                                                           <option value="true">启用</option>
                                                       </select>

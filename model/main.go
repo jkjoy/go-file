@@ -4,8 +4,10 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"fmt"
 	"go-file/common"
 	"os"
+	"strings"
 )
 
 var DB *gorm.DB
@@ -26,6 +28,18 @@ func CountTable(tableName string) (num int) {
 	return
 }
 
+// enableSQLiteWAL lets readers keep working while a write is in progress.
+// The mode is stored in the database file, so it only needs to be set once.
+func enableSQLiteWAL(db *gorm.DB) {
+	var mode struct{ JournalMode string }
+	if err := db.Raw("PRAGMA journal_mode = WAL").Scan(&mode).Error; err != nil || !strings.EqualFold(mode.JournalMode, "wal") {
+		common.SysError(fmt.Sprintf("failed to enable SQLite WAL mode (current mode: %q): %v", mode.JournalMode, err))
+		return
+	}
+	// NORMAL is safe in WAL mode and avoids an fsync on every commit.
+	db.Exec("PRAGMA synchronous = NORMAL")
+}
+
 func InitDB() (db *gorm.DB, err error) {
 	if os.Getenv("SQL_DSN") != "" {
 		// Use MySQL
@@ -36,10 +50,14 @@ func InitDB() (db *gorm.DB, err error) {
 	}
 	if err == nil {
 		DB = db
+		if os.Getenv("SQL_DSN") == "" {
+			enableSQLiteWAL(db)
+		}
 		db.AutoMigrate(&File{})
 		db.AutoMigrate(&Image{})
 		db.AutoMigrate(&User{})
 		db.AutoMigrate(&Option{})
+		db.AutoMigrate(&StatHour{}, &StatIP{}, &StatURL{})
 		createAdminAccount()
 		return DB, err
 	} else {

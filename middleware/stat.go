@@ -1,36 +1,34 @@
 package middleware
 
 import (
-	"context"
 	"github.com/gin-gonic/gin"
 	"go-file/common"
+	"go-file/model"
+	"net/http"
 	"strings"
 	"time"
 )
 
-func statHelper(ip string, url string) {
-	ctx := context.Background()
-	rdb := common.RDB
-	ipKey := "statIP:" + ip
-	urlKey := "statURL:" + url
-	t := time.Now()
-	//_, offset := t.Local().Zone()
-	reqKey := "statReq:" + t.In(time.Local).Format("2006-01-02 15")
-	rdb.Incr(ctx, ipKey)
-	rdb.Expire(ctx, ipKey, time.Duration(common.StatCacheTimeout)*time.Hour)
-	if !strings.HasPrefix(urlKey, "statURL:/public") {
-		rdb.Incr(ctx, urlKey)
-		rdb.Expire(ctx, urlKey, time.Duration(common.StatCacheTimeout)*time.Hour)
-	}
-	rdb.Incr(ctx, reqKey)
-	rdb.Expire(ctx, reqKey, time.Duration(common.StatReqTimeout)*time.Hour*24)
+// statSkipped reports requests that should not be counted at all:
+// embedded assets and the dashboard's own statistics API.
+func statSkipped(path string) bool {
+	return strings.HasPrefix(path, "/public/") ||
+		path == "/api/stat" || strings.HasPrefix(path, "/api/stat/") ||
+		path == "/favicon.ico"
 }
 
 func AllStat() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		if common.StatEnabled {
-			go statHelper(c.ClientIP(), c.Request.URL.String())
-		}
 		c.Next()
+		if !common.StatEnabled || statSkipped(c.Request.URL.Path) {
+			return
+		}
+		url := ""
+		// Unknown paths (scanners, typos) still count as traffic but are kept
+		// out of the URL ranking so they cannot flood it.
+		if c.Writer.Status() < http.StatusBadRequest && c.FullPath() != "" {
+			url = c.Request.URL.RequestURI()
+		}
+		model.RecordVisit(c.ClientIP(), url, time.Now())
 	}
 }

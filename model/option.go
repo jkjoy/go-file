@@ -30,6 +30,7 @@ func InitOptionMap() {
 	common.OptionMap["FooterInfo"] = ""
 	common.OptionMap["Version"] = common.Version
 	common.OptionMap["Notice"] = ""
+	common.OptionMap["StatEnabled"] = strconv.FormatBool(common.StatEnabled)
 	options, _ := AllOption()
 	for _, option := range options {
 		updateOptionMap(option.Key, option.Value)
@@ -40,8 +41,8 @@ func UpdateOption(key string, value string) error {
 	if key == "WebsiteTheme" && !common.IsValidTheme(value) {
 		return errors.New("无效的主题模板")
 	}
-	if key == "StatEnabled" && value == "true" && !common.RedisEnabled {
-		return errors.New("未启用 Redis，无法启用统计功能")
+	if key == "StatEnabled" && value != "true" && value != "false" {
+		return errors.New("无效的统计开关")
 	}
 
 	// Save to database first
@@ -79,9 +80,5 @@ func updateOptionMap(key string, value string) {
 	}
 	if key == "StatEnabled" {
 		common.StatEnabled = value == "true"
-		if !common.RedisEnabled {
-			common.StatEnabled = false
-			common.OptionMap["StatEnabled"] = "false"
-		}
 	}
 }

@@ -22,9 +22,9 @@ var AbstractTextLength = 40
 var ExplorerCacheEnabled = false // After my test, enable this will make the server slower...
 var ExplorerCacheTimeout = 600   // Second
 
+// Visit statistics are stored in the SQL database and do not require Redis.
 var StatEnabled = true
-var StatCacheTimeout = 24 // Hour
-var StatReqTimeout = 30   // Day
+var StatRetentionDays = 30 // Day
 var StatIPNum = 20
 var StatURLNum = 20
 
