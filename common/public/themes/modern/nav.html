@@ -25,17 +25,6 @@
                     <label class="is-sr-only" for="searchInput">搜索文件</label>
                     <input class="input" type="search" id="searchInput" name="query" value="{{.query}}" placeholder="搜索文件…" autocomplete="off">
                 </form>
-                <div class="navbar-item theme-picker">
-                    <label for="themeSelect">主题</label>
-                    <div class="select is-small">
-                        <select id="themeSelect" onchange="switchTheme(this.value)">
-                            <option value="default" {{if not .themePreference}}selected{{end}}>跟随站点</option>
-                            {{range .themes}}
-                            <option value="{{.ID}}" {{if eq $.themePreference .ID}}selected{{end}}>{{.Name}}</option>
-                            {{end}}
-                        </select>
-                    </div>
-                </div>
                 <div class="navbar-item nav-actions">
                     <button class="button is-primary" type="button" onclick="showUploadModal()">上传</button>
                     {{if not .username}}<a class="button is-light" href="/login">登录</a>{{end}}

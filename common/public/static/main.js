@@ -1,11 +1,5 @@
 let hiddenTextArea = undefined;
 
-function switchTheme(theme) {
-    const url = new URL(window.location.href);
-    url.searchParams.set('theme', theme);
-    window.location.assign(url.href);
-}
-
 function showUploadModal() {
     if (location.href.split('/')[3].startsWith("explorer")) {
         let path = getPathParam();

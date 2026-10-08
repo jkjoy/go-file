@@ -25,17 +25,6 @@
                 <a class="navbar-item" href="/help"> 帮助 </a>-->
             </div>
             <div class="navbar-end">
-                <div class="navbar-item">
-                    <label class="is-sr-only" for="themeSelect">主题模板</label>
-                    <div class="select is-small">
-                        <select id="themeSelect" onchange="switchTheme(this.value)" aria-label="主题模板">
-                            <option value="default" {{if not .themePreference}}selected{{end}}>跟随站点</option>
-                            {{range .themes}}
-                            <option value="{{.ID}}" {{if eq $.themePreference .ID}}selected{{end}}>{{.Name}}</option>
-                            {{end}}
-                        </select>
-                    </div>
-                </div>
                 <div class="navbar-item" >
                     <p class="control is-expanded is-light flex-grow">
                         <input class="input flex-grow" type="search" id="searchInput" autocomplete="nope"

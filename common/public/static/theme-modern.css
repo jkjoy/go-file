@@ -223,27 +223,6 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
     border-color: #cdd5df;
 }
 
-.theme-picker {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    color: var(--modern-muted);
-    font-size: 13px;
-    white-space: nowrap;
-}
-
-.theme-picker select {
-    height: 40px;
-    max-width: 142px;
-    color: var(--modern-text);
-    background: var(--modern-surface);
-    border: 1px solid var(--modern-border);
-    border-radius: 9px;
-    padding: 0 26px 0 10px;
-    font: inherit;
-    cursor: pointer;
-}
-
 .modern-navbar .navbar-link {
     color: var(--modern-text);
     border-radius: 9px;
@@ -1172,10 +1151,6 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
 
     .nav-actions {
         gap: 8px;
-    }
-
-    .theme-picker > label {
-        display: none;
     }
 }
 

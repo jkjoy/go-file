@@ -2008,36 +2008,6 @@ body::-webkit-scrollbar {
     line-height: inherit;
 }
 
-/* 导航内的主题切换下拉 */
-.nav-theme {
-    flex: none;
-}
-
-.nav-theme .select {
-    width: auto;
-}
-
-.nav-theme .select::after {
-    right: 12px;
-}
-
-.nav-theme .select select {
-    width: auto;
-    height: 38px;
-    padding: 0 30px 0 13px;
-    border-radius: 999px;
-    border: 1px solid var(--border);
-    background: var(--surface-soft);
-    color: var(--ink-soft);
-    font-size: 13px;
-    cursor: pointer;
-}
-
-.nav-theme .select select:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-soft);
-}
-
 /* 屏幕阅读器专用(mirrors Bulma 的 .is-sr-only) */
 .is-sr-only {
     position: absolute;
