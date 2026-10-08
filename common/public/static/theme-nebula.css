@@ -686,8 +686,9 @@ hr {
     min-width: 0;
 }
 
-.file-name {
+.nebula-file-name {
     display: inline-block;
+    max-width: 100%;
     font-size: 16.5px;
     font-weight: 650;
     color: var(--ink);
@@ -695,7 +696,7 @@ hr {
     word-break: break-all;
 }
 
-.file-name:hover {
+.nebula-file-name:hover {
     color: var(--accent);
 }
 
@@ -800,11 +801,12 @@ hr {
     border-radius: var(--radius);
 }
 
-.empty-state svg {
+.empty-state > .empty-state-icon {
+    display: block;
     width: 74px;
     height: 74px;
-    color: var(--faint);
-    opacity: .85;
+    margin: 0 auto;
+    color: var(--muted);
 }
 
 .empty-state .empty-title {

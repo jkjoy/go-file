@@ -11,7 +11,7 @@
             </article>
             {{if not .files}}
             <div class="empty-state">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"
+                <svg class="empty-state-icon" width="74" height="74" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"
                      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M21 8.2 12 3 3 8.2v7.6L12 21l9-5.2V8.2Z"/>
                     <path d="M3.3 8.3 12 13l8.7-4.7"/>
@@ -23,14 +23,14 @@
                 {{else}}
                 <p class="empty-title">这里还空空如也</p>
                 <p class="empty-text">点击下方按钮，上传第一个文件吧</p>
-                <a class="btn btn-grad" onclick="showUploadModal()">
+                <button class="btn btn-grad" type="button" onclick="showUploadModal()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <path d="M12 16V4m0 0 4.5 4.5M12 4 7.5 8.5"/>
                         <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>
                     </svg>
                     上传文件
-                </a>
+                </button>
                 {{end}}
             </div>
             {{end}}
@@ -40,7 +40,7 @@
                 <article class="file-card" id="file-{{$file.Id}}">
                     <span class="file-ext" aria-hidden="true">FILE</span>
                     <div class="file-main">
-                        <a class="file-name" onclick="displayFile('/upload/{{$file.Link}}')">{{$file.Filename}}</a>
+                        <a class="nebula-file-name" onclick="displayFile('/upload/{{$file.Link}}')">{{$file.Filename}}</a>
                         <div class="file-meta">
                             <span class="meta-chip">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -153,7 +153,7 @@
             cpp: 'code', sh: 'code', php: 'code', rb: 'code', rs: 'code', sql: 'code', yml: 'code', yaml: 'code', xml: 'code'
         };
         document.querySelectorAll('.file-card').forEach(function (card) {
-            let nameEl = card.querySelector('.file-name');
+            let nameEl = card.querySelector('.nebula-file-name');
             let badge = card.querySelector('.file-ext');
             if (!nameEl || !badge) return;
             let parts = nameEl.textContent.trim().split('.');
